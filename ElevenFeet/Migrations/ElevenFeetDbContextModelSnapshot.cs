@@ -29,7 +29,7 @@ namespace ElevenFeet.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ModulePicturesId")
+                    b.Property<int>("ModulePictureId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -40,7 +40,7 @@ namespace ElevenFeet.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModulePicturesId");
+                    b.HasIndex("ModulePictureId");
 
                     b.ToTable("CaravanModules");
                 });
@@ -382,9 +382,11 @@ namespace ElevenFeet.Migrations
 
             modelBuilder.Entity("ElevenFeet.Models.CaravanModule", b =>
                 {
-                    b.HasOne("ElevenFeet.Models.ModulePictures", "ModulePictures")
+                    b.HasOne("ElevenFeet.Models.ModulePictures", "ModulePicture")
                         .WithMany()
-                        .HasForeignKey("ModulePicturesId");
+                        .HasForeignKey("ModulePictureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ElevenFeet.Models.RentCaravanPicture", b =>

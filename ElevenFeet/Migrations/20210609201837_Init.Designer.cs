@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ElevenFeet.Migrations
 {
     [DbContext(typeof(ElevenFeetDbContext))]
-    [Migration("20210606131531_Init")]
+    [Migration("20210609201837_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace ElevenFeet.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ModulePicturesId")
+                    b.Property<int>("ModulePictureId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -42,7 +42,7 @@ namespace ElevenFeet.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ModulePicturesId");
+                    b.HasIndex("ModulePictureId");
 
                     b.ToTable("CaravanModules");
                 });
@@ -384,9 +384,11 @@ namespace ElevenFeet.Migrations
 
             modelBuilder.Entity("ElevenFeet.Models.CaravanModule", b =>
                 {
-                    b.HasOne("ElevenFeet.Models.ModulePictures", "ModulePictures")
+                    b.HasOne("ElevenFeet.Models.ModulePictures", "ModulePicture")
                         .WithMany()
-                        .HasForeignKey("ModulePicturesId");
+                        .HasForeignKey("ModulePictureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ElevenFeet.Models.RentCaravanPicture", b =>

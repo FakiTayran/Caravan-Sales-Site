@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +15,9 @@ namespace ElevenFeet.Models
 
         public string Description { get; set; }
 
-        public ModulePictures ModulePictures { get; set; }
+        [ForeignKey("ModulePicture")]
+        public int ModulePictureId { get; set; }
 
+        public ModulePictures ModulePicture { get; set; }
     }
 }

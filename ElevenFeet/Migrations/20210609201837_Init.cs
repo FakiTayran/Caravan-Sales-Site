@@ -218,17 +218,17 @@ namespace ElevenFeet.Migrations
                     Name = table.Column<string>(nullable: true),
                     Price = table.Column<decimal>(nullable: false),
                     Description = table.Column<string>(nullable: true),
-                    ModulePicturesId = table.Column<int>(nullable: true)
+                    ModulePictureId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CaravanModules", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CaravanModules_ModulePictures_ModulePicturesId",
-                        column: x => x.ModulePicturesId,
+                        name: "FK_CaravanModules_ModulePictures_ModulePictureId",
+                        column: x => x.ModulePictureId,
                         principalTable: "ModulePictures",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -311,9 +311,9 @@ namespace ElevenFeet.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CaravanModules_ModulePicturesId",
+                name: "IX_CaravanModules_ModulePictureId",
                 table: "CaravanModules",
-                column: "ModulePicturesId");
+                column: "ModulePictureId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RentCaravanPictures_RentCaravanId",

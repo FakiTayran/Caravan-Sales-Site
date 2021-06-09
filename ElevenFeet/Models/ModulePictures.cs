@@ -8,5 +8,6 @@ namespace ElevenFeet.Models
     public class ModulePictures : BaseEntity
     {
         public string pictureUri { get; set; }
+
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,34 +20,42 @@ namespace ElevenFeet.Controllers
     {
         private readonly ElevenFeetDbContext elevenFeetDbContext;
         private readonly IFileUpload fileUpload;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public CaravanModuleController(ElevenFeetDbContext elevenFeetDbContext,IFileUpload fileUpload)
+        public CaravanModuleController(ElevenFeetDbContext elevenFeetDbContext,IFileUpload fileUpload, IHttpContextAccessor httpContextAccessor)
         {
             this.elevenFeetDbContext = elevenFeetDbContext;
             this.fileUpload = fileUpload;
+            this.httpContextAccessor = httpContextAccessor;
         }
-        [HttpPost("CreateCaravanModule")]
-        public async Task<CaravanModule> CreateCaravanModule(CaravanModule module,IFormFile file)
-        {
+        [HttpPost("CreateCaravanModule/{Name}/{Price}/{Description}")]
+        public async Task<CaravanModule> CreateCaravanModule(IFormFile file,string Name,decimal Price,string Description)
+        { 
+            var module = new CaravanModule
+            {
+                Name = Name,
+                Price = Price,
+                Description = Description
+            };
             await elevenFeetDbContext.Set<CaravanModule>().AddAsync(module);
             var result = fileUpload.Upload(file);
             if (result.FileResult == Utilities.FileResult.Succeded)
             {
                 ModulePictures modulePicture = new ModulePictures();
-                modulePicture.pictureUri = result.FileUrl;
-                module.ModulePictures = modulePicture;
+                modulePicture.pictureUri = System.IO.Path.Combine($"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host.Value}", "Images", result.FileUrl);
+                module.ModulePicture = modulePicture;
                 await elevenFeetDbContext.SaveChangesAsync();
             }
-            await elevenFeetDbContext.SaveChangesAsync();
             return module;
-        }
+        } 
 
-        [HttpPost("DeleteCaravanModule")]
-        public async Task DeleteCaravanModule(int id)
+        [HttpGet("DeleteCaravanModule/{id}")]
+        public async Task<CaravanModule> DeleteCaravanModule(int id)
         {
             var caravanModule = await elevenFeetDbContext.CaravanModules.FirstOrDefaultAsync(x => x.Id == id);
             elevenFeetDbContext.Set<CaravanModule>().Remove(caravanModule);
             await elevenFeetDbContext.SaveChangesAsync();
+            return caravanModule;
         }
 
         [HttpPost("UpdateCaravanModule")]
@@ -57,9 +67,10 @@ namespace ElevenFeet.Controllers
         }
 
         [HttpGet("ListCaravanModule")]
+        [AllowAnonymous]
         public async Task<List<CaravanModule>> ListCaravanModule()
         {
-            return await elevenFeetDbContext.Set<CaravanModule>().ToListAsync();
+            return await elevenFeetDbContext.Set<CaravanModule>().Include(x=>x.ModulePicture).ToListAsync();
         }
     }
 }
