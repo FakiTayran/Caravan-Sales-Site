@@ -53,7 +53,7 @@ namespace ElevenFeet.Controllers
                 }
                 await elevenFeetDbContext.SaveChangesAsync();
             }
-            return Ok();
+            return Ok(file);
         }
     }
 }

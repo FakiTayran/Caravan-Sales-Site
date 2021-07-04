@@ -2,11 +2,13 @@
 using ElevenFeet.Models;
 using ElevenFeet.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,11 +21,13 @@ namespace ElevenFeet.Controllers
     {
         private readonly ElevenFeetDbContext elevenFeetDbContext;
         private readonly IFileUpload fileUpload;
+        private readonly IWebHostEnvironment env;
 
-        public SaleCaravanController(ElevenFeetDbContext elevenFeetDbContext,IFileUpload fileUpload)
+        public SaleCaravanController(ElevenFeetDbContext elevenFeetDbContext, IFileUpload fileUpload, IWebHostEnvironment env)
         {
             this.elevenFeetDbContext = elevenFeetDbContext;
             this.fileUpload = fileUpload;
+            this.env = env;
         }
         [HttpPost("CreateSaleCaravan")]
         public async Task<SaleCaravan> CreateSaleCaravanAsync(CaravanSaleDto saleDto)
@@ -40,7 +44,7 @@ namespace ElevenFeet.Controllers
                 Price = saleDto.Price,
                 Type = saleDto.Type,
                 Year = saleDto.Year,
-            };   
+            };
             await elevenFeetDbContext.Set<SaleCaravan>().AddAsync(sale);
             await elevenFeetDbContext.SaveChangesAsync();
             return sale;
@@ -56,19 +60,49 @@ namespace ElevenFeet.Controllers
         }
 
         [HttpPost("UpdateAsync")]
-        public async Task UpdateAsync(int id)
+        public async Task<SaleCaravan> UpdateAsync(SaleCaravan saleCaravan)
         {
-            var saleCaravan = await elevenFeetDbContext.SaleCaravans.FirstOrDefaultAsync(x => x.Id == id);
-            elevenFeetDbContext.Entry(saleCaravan).State = EntityState.Modified;
+            var editedCaravan = await elevenFeetDbContext.SaleCaravans.FirstOrDefaultAsync(x => x.Id == saleCaravan.Id);
+            editedCaravan.Kilometer = saleCaravan.Kilometer;
+            editedCaravan.Model = saleCaravan.Model;
+            editedCaravan.Price = saleCaravan.Price;
+            editedCaravan.Status = saleCaravan.Status;
+            editedCaravan.Type = saleCaravan.Type;
+            editedCaravan.Year = saleCaravan.Year;
+            editedCaravan.Description = saleCaravan.Description;
+            editedCaravan.Brand = saleCaravan.Brand;
+            editedCaravan.Capacity = saleCaravan.Capacity;
+            editedCaravan.Gear = saleCaravan.Gear;
+            elevenFeetDbContext.Entry(editedCaravan).State = EntityState.Modified;
             await elevenFeetDbContext.SaveChangesAsync();
+            return editedCaravan;
         }
 
         [HttpGet("ListAllAsync")]
         [AllowAnonymous]
         public async Task<List<SaleCaravan>> ListAllAsync()
         {
-            return await elevenFeetDbContext.Set<SaleCaravan>().Include(x=>x.CaravanPictures).ToListAsync();
+            return await elevenFeetDbContext.Set<SaleCaravan>().Include(x => x.CaravanPictures).ToListAsync();
         }
 
+        [HttpGet("GetPicture/{id}")]
+        [AllowAnonymous]
+        public async Task<List<SaleCaravanPicture>> GetPicture(int id)
+        {
+            return await elevenFeetDbContext.SaleCaravanPictures.Where(x => x.SaleCaravanId == id).ToListAsync();
+        }
+
+        [HttpGet("DeleteImage/{id}")]
+        [AllowAnonymous]
+        public async Task DeleteImage(int id)
+        {
+            var image = await elevenFeetDbContext.SaleCaravanPictures.FirstOrDefaultAsync(x => x.Id == id);
+            elevenFeetDbContext.Entry(image).State = EntityState.Deleted;
+            await elevenFeetDbContext.SaveChangesAsync();
+            if (System.IO.File.Exists(image.ImageUrl))
+            {
+                System.IO.File.Delete(image.ImageUrl);
+            }
+        }
     }
 }
