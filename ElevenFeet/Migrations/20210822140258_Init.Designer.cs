@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ElevenFeet.Migrations
 {
     [DbContext(typeof(ElevenFeetDbContext))]
-    [Migration("20210609201837_Init")]
+    [Migration("20210822140258_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

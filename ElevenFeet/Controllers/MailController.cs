@@ -28,8 +28,8 @@ namespace ElevenFeet.Controllers
                 SmtpClient message = new SmtpClient();
                 message.Credentials = new NetworkCredential(mailDto.ToMail, "!Rs2232318?");
                 message.Port = 587;
-                message.Host = "";
-                message.EnableSsl = true;
+                message.Host = "ni-trio-win.guzelhosting.com";
+                message.EnableSsl = false;
                 message.Send(mail);
                 return Ok();
             }
